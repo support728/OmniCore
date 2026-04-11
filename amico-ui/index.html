@@ -1,13 +1,36 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>amico-ui</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OmniCore AI</title>
+</head>
+<body>
+
+  <h2>OmniCore AI Chat</h2>
+
+  <input id="input" placeholder="Type message..." style="width:300px;" />
+  <button onclick="send()">Send</button>
+
+  <p><strong>Response:</strong></p>
+  <div id="output"></div>
+
+  <script>
+    async function send() {
+      const message = document.getElementById("input").value;
+
+      const res = await fetch("https://omnicore-pbi5.onrender.com/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: message
+        })
+      });
+
+      const data = await res.json();
+      document.getElementById("output").innerText = data.response;
+    }
+  </script>
+
+</body>
 </html>

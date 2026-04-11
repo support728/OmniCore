@@ -1,3 +1,6 @@
+conversation = [
+    {"role": "system", "content": "You are OmniCore AI."}
+]
 
 
 
@@ -37,13 +40,25 @@ def health():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
+    # Add user message to conversation
+    conversation.append({
+        "role": "user",
+        "content": request.message
+    })
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": request.message}
-        ]
+        messages=conversation
     )
 
+    reply = response.choices[0].message.content
+
+    # Add assistant reply to conversation
+    conversation.append({
+        "role": "assistant",
+        "content": reply
+    })
+
     return {
-        "response": response.choices[0].message.content
+        "response": reply
     }
