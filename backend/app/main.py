@@ -1,6 +1,6 @@
-conversation = [
-    {"role": "system", "content": "You are OmniCore AI."}
-]
+
+# In-memory user-based conversation memory
+memory = {}
 
 
 
@@ -13,6 +13,7 @@ import os
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class ChatRequest(BaseModel):
+    user_id: str
     message: str
 
 app = FastAPI()
@@ -40,21 +41,29 @@ def health():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
-    # Add user message to conversation
-    conversation.append({
+    # Initialize user memory if not present
+    if request.user_id not in memory:
+        memory[request.user_id] = [
+            {"role": "system", "content": "You are OmniCore AI."}
+        ]
+
+    user_convo = memory[request.user_id]
+
+    # Add user message to user's conversation
+    user_convo.append({
         "role": "user",
         "content": request.message
     })
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=conversation
+        messages=user_convo
     )
 
     reply = response.choices[0].message.content
 
-    # Add assistant reply to conversation
-    conversation.append({
+    # Add assistant reply to user's conversation
+    user_convo.append({
         "role": "assistant",
         "content": reply
     })
