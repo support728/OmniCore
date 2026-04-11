@@ -1,36 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>OmniCore AI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCore AI Chat</title>
+  <style>
+    body {
+      background: #181818;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 100vh;
+    }
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0;
+    }
+    .chat-history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 12px 80px 12px;
+      background: #181818;
+      box-sizing: border-box;
+    }
+    .bubble {
+      max-width: 70%;
+      padding: 12px 18px;
+      border-radius: 18px;
+      margin-bottom: 12px;
+      word-break: break-word;
+      font-size: 1.08em;
+      line-height: 1.5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .user {
+      background: #0057ff;
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .ai {
+      background: #23272f;
+      color: #f1f1f1;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .input-area {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: #23272f;
+      padding: 16px 0 16px 0;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.12);
+    }
+    .input-box {
+      width: 400px;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+      margin-right: 8px;
+      background: #23272f;
+      color: #f1f1f1;
+      outline: none;
+      border: 1px solid #333;
+    }
+    .send-btn {
+      padding: 12px 22px;
+      border-radius: 8px;
+      border: none;
+      background: #0057ff;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .send-btn:active {
+      background: #003fa3;
+    }
+    @media (max-width: 600px) {
+      .input-box { width: 60vw; }
+      .chat-container { max-width: 100vw; }
+    }
+  </style>
 </head>
 <body>
-
-  <h2>OmniCore AI Chat</h2>
-
-  <input id="input" placeholder="Type message..." style="width:300px;" />
-  <button onclick="send()">Send</button>
-
-  <p><strong>Response:</strong></p>
-  <div id="output"></div>
-
+  <div class="chat-container">
+    <div id="chat" class="chat-history"></div>
+    <form class="input-area" onsubmit="return sendMessage(event)">
+      <input id="input" class="input-box" placeholder="Type your message..." autocomplete="off" />
+      <button type="submit" class="send-btn">Send</button>
+    </form>
+  </div>
   <script>
-    async function send() {
-      const message = document.getElementById("input").value;
+    const userId = "mrlewis";
+    const chat = [];
+    const chatDiv = document.getElementById('chat');
+    const input = document.getElementById('input');
 
-      const res = await fetch("https://omnicore-pbi5.onrender.com/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: message
-        })
+    function renderChat() {
+      chatDiv.innerHTML = '';
+      chat.forEach(msg => {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble ' + (msg.role === 'user' ? 'user' : 'ai');
+        bubble.textContent = msg.content;
+        chatDiv.appendChild(bubble);
       });
-
-      const data = await res.json();
-      document.getElementById("output").innerText = data.response;
+      chatDiv.scrollTop = chatDiv.scrollHeight;
     }
-  </script>
 
+    async function sendMessage(e) {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Add user message
+      chat.push({ role: 'user', content: message });
+      renderChat();
+      input.value = '';
+
+      // Add temporary AI bubble
+      chat.push({ role: 'ai', content: 'Thinking...' });
+      renderChat();
+
+      try {
+        const res = await fetch('https://omnicore-pbi5.onrender.com/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, message })
+        });
+        const data = await res.json();
+        // Replace last AI bubble with real response
+        chat[chat.length - 1].content = data.response;
+        renderChat();
+      } catch (err) {
+        chat[chat.length - 1].content = 'Error: ' + err.message;
+        renderChat();
+      }
+    }
+
+    // Enter key sends
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.querySelector('.send-btn').click();
+      }
+    });
+  </script>
 </body>
 </html>
