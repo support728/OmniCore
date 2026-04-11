@@ -1,8 +1,11 @@
 
 
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import os
+import openai
 
 class ChatRequest(BaseModel):
     message: str
@@ -31,6 +34,20 @@ def health():
 # /chat endpoint
 @app.post("/chat")
 def chat(request: ChatRequest):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        return {"response": "OpenAI API key not set."}
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": request.message}
+            ]
+        )
+        ai_response = completion.choices[0].message["content"]
+    except Exception as e:
+        ai_response = f"OpenAI error: {str(e)}"
     return {
-        "response": f"You said: {request.message}"
+        "response": ai_response
     }
