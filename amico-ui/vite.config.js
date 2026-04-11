@@ -9,5 +9,14 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL || env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'),
     },
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://127.0.0.1:8001",
+          changeOrigin: true,
+          secure: false
+        }
+      }
+    }
   };
 });
