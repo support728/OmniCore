@@ -1,8 +1,11 @@
 
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-from app.routes import chat as chat_router
+class ChatRequest(BaseModel):
+    message: str
 
 app = FastAPI()
 
@@ -24,5 +27,10 @@ def root():
 def health():
     return {"status": "ok"}
 
-# Mount the new /api/chat endpoint
-app.include_router(chat_router.router, prefix="/api")
+
+# /chat endpoint
+@app.post("/chat")
+def chat(request: ChatRequest):
+    return {
+        "response": f"You said: {request.message}"
+    }
