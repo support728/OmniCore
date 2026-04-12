@@ -1,3 +1,42 @@
+from sqlalchemy.orm import Session
+from app.models import User
+from app.auth import hash_password, verify_password, create_token
+def get_db_sqlalchemy():
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    DATABASE_URL = "sqlite:///./omnicore.db"
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# --- AUTH ENDPOINTS ---
+from fastapi import Form
+
+@app.post("/signup")
+def signup(email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db_sqlalchemy)):
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    user = User(
+        email=email,
+        password_hash=hash_password(password)
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {"message": "User created"}
+
+@app.post("/login")
+def login(email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db_sqlalchemy)):
+    user = db.query(User).filter(User.email == email).first()
+    if not user or not verify_password(password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    token = create_token({"user_id": user.id})
+    return {"access_token": token}
 from app.db import init_db, get_db
 import atexit
 init_db()
