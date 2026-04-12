@@ -97,7 +97,16 @@
   </style>
 </head>
 <body>
-  <div class="chat-container">
+  <div id="auth" style="margin: 32px auto; max-width: 340px; text-align: center;">
+    <input id="email" placeholder="Email" style="width: 90%; margin-bottom: 8px; padding: 10px; border-radius: 6px; border: 1px solid #333; background: #23272f; color: #f1f1f1;" />
+    <input id="password" type="password" placeholder="Password" style="width: 90%; margin-bottom: 8px; padding: 10px; border-radius: 6px; border: 1px solid #333; background: #23272f; color: #f1f1f1;" />
+    <div style="margin-top: 8px;">
+      <button onclick="signup()" style="margin-right: 8px; padding: 8px 18px; border-radius: 6px; border: none; background: #0057ff; color: #fff; cursor: pointer;">Sign Up</button>
+      <button onclick="login()" style="padding: 8px 18px; border-radius: 6px; border: none; background: #23272f; color: #fff; cursor: pointer; border: 1px solid #0057ff;">Login</button>
+    </div>
+    <div id="auth-msg" style="margin-top: 10px; color: #ff6b6b;"></div>
+  </div>
+  <div class="chat-container" style="display:none;">
     <div id="chat" class="chat-history"></div>
     <form class="input-area" onsubmit="return sendMessage(event)">
       <input id="input" class="input-box" placeholder="Type your message..." autocomplete="off" />
@@ -105,10 +114,49 @@
     </form>
   </div>
   <script>
-    const userId = "mrlewis";
+    const API = "http://localhost:8000";
+    let userId = null;
+    let jwt = localStorage.getItem("token") || null;
     const chat = [];
     const chatDiv = document.getElementById('chat');
     const input = document.getElementById('input');
+    const authDiv = document.getElementById('auth');
+    const chatContainer = document.querySelector('.chat-container');
+    const authMsg = document.getElementById('auth-msg');
+
+    function showChat() {
+      authDiv.style.display = 'none';
+      chatContainer.style.display = '';
+    }
+    function showAuth(msg = '') {
+      authDiv.style.display = '';
+      chatContainer.style.display = 'none';
+      if (msg) authMsg.textContent = msg;
+    }
+
+    async function signup() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      await fetch(`${API}/signup`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password })
+      });
+      alert("Account created!");
+    }
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      location.reload();
+    }
 
     function renderChat() {
       chatDiv.innerHTML = '';
@@ -121,34 +169,17 @@
       chatDiv.scrollTop = chatDiv.scrollHeight;
     }
 
-    async function sendMessage(e) {
-      e.preventDefault();
-      const message = input.value.trim();
-      if (!message) return;
-
-      // Add user message
-      chat.push({ role: 'user', content: message });
-      renderChat();
-      input.value = '';
-
-      // Add temporary AI bubble
-      chat.push({ role: 'ai', content: 'Thinking...' });
-      renderChat();
-
-      try {
-        const res = await fetch('https://omnicore-pbi5.onrender.com/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: userId, message })
-        });
-        const data = await res.json();
-        // Replace last AI bubble with real response
-        chat[chat.length - 1].content = data.response;
-        renderChat();
-      } catch (err) {
-        chat[chat.length - 1].content = 'Error: ' + err.message;
-        renderChat();
-      }
+    async function sendMessage(message) {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ message })
+      });
+      return await res.json();
     }
 
     // Enter key sends
@@ -158,6 +189,18 @@
         document.querySelector('.send-btn').click();
       }
     });
+  </script>
+  <script>
+    window.onload = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        document.getElementById("auth").style.display = "block";
+        document.querySelector('.chat-container').style.display = "none";
+      } else {
+        document.getElementById("auth").style.display = "none";
+        document.querySelector('.chat-container').style.display = "";
+      }
+    };
   </script>
 </body>
 </html>
