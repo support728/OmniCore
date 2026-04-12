@@ -3,8 +3,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from auth import decode_token
-from models import User
+from .auth import decode_token
+from .models import User
 
 DATABASE_URL = "sqlite:///./omnicore.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
