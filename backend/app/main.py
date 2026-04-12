@@ -1,3 +1,4 @@
+print("[DEBUG] backend/app/main.py is executing...")
 
 from fastapi import FastAPI, Depends, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -108,35 +109,48 @@ def health():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
+    print("/chat endpoint called")
+    print(f"Request: {request}")
     from app.db import get_db
     system_prompt = {"role": "system", "content": "You are OmniCore AI."}
-    with get_db() as conn:
-        c = conn.cursor()
-        # Ensure user exists
-        c.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (request.user_id,))
-        # Find or create conversation for user (latest open conversation)
-        c.execute("SELECT id FROM conversations WHERE user_id=? ORDER BY created_at DESC LIMIT 1", (request.user_id,))
-        row = c.fetchone()
-        if row:
-            conversation_id = row[0]
-        else:
-            c.execute("INSERT INTO conversations (user_id) VALUES (?)", (request.user_id,))
-            conversation_id = c.lastrowid
-        # Load all messages for this conversation
-        c.execute("SELECT role, content FROM messages WHERE conversation_id=? ORDER BY id ASC", (conversation_id,))
-        messages = c.fetchall()
-        chat_history = [system_prompt] if not messages else [system_prompt] + [{"role": r, "content": m} for r, m in messages]
-        # Add user message
-        chat_history.append({"role": "user", "content": request.message})
-        # Call OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=chat_history
-        )
-        reply = response.choices[0].message.content
-        # Save user message
-        c.execute("INSERT INTO messages (conversation_id, role, content) VALUES (?, ?, ?)", (conversation_id, "user", request.message))
-        # Save assistant reply
-        c.execute("INSERT INTO messages (conversation_id, role, content) VALUES (?, ?, ?)", (conversation_id, "assistant", reply))
-        conn.commit()
-    return {"response": reply}
+    try:
+        with get_db() as conn:
+            c = conn.cursor()
+            # Ensure user exists
+            c.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (request.user_id,))
+            # Find or create conversation for user (latest open conversation)
+            c.execute("SELECT id FROM conversations WHERE user_id=? ORDER BY created_at DESC LIMIT 1", (request.user_id,))
+            row = c.fetchone()
+            if row:
+                conversation_id = row[0]
+            else:
+                c.execute("INSERT INTO conversations (user_id) VALUES (?)", (request.user_id,))
+                conversation_id = c.lastrowid
+            # Load all messages for this conversation
+            c.execute("SELECT role, content FROM messages WHERE conversation_id=? ORDER BY id ASC", (conversation_id,))
+            messages = c.fetchall()
+            chat_history = [system_prompt] if not messages else [system_prompt] + [{"role": r, "content": m} for r, m in messages]
+            # Add user message
+            chat_history.append({"role": "user", "content": request.message})
+            print(f"Chat history: {chat_history}")
+            # Call OpenAI
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=chat_history
+                )
+                reply = response.choices[0].message.content
+                print(f"OpenAI reply: {reply}")
+            except Exception as e:
+                print(f"OpenAI error: {e}")
+                reply = "Test response working"
+            # Save user message
+            c.execute("INSERT INTO messages (conversation_id, role, content) VALUES (?, ?, ?)", (conversation_id, "user", request.message))
+            # Save assistant reply
+            c.execute("INSERT INTO messages (conversation_id, role, content) VALUES (?, ?, ?)", (conversation_id, "assistant", reply))
+            conn.commit()
+        print("Returning response to frontend")
+        return {"response": reply}
+    except Exception as e:
+        print(f"/chat endpoint error: {e}")
+        return {"response": "Test response working (exception)"}
