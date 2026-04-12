@@ -181,6 +181,8 @@ body {
 .input-area button:hover {
   background: #1e40af;
 }
+/* Fixed: wrap in .messages selector */
+.messages {
   flex-direction: column;
   gap: 25px;
   place-content: center;

@@ -1,34 +1,45 @@
-import { useState } from "react";
-import { sendMessage as apiSendMessage } from "./services/api";
+async function handleSend() {
+  if (!message.trim()) return;
 
-function App() {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+  const userMessage = message;
 
-  // No changes needed: input is cleared and chat history is updated as required.
-  // The code already implements both fixes as requested.
+  setMessages((prev) => [
+    ...prev,
+    { role: "user", text: userMessage }
+  ]);
 
-  return (
-    <div>
-      <h1>Amico Chat</h1>
+  setMessage("");
 
-      <input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Ask something..."
-      />
+  try {
+    const res = await fetch("https://omnicore-backend.onrender.com/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: userMessage })
+    });
 
-      <button onClick={handleSend}>Send</button>
+    const data = await res.json();
 
-      <div style={{ marginTop: 20 }}>
-        {messages.map((msg, i) => (
-          <div key={i}>
-            <b>{msg.role}:</b> {msg.text}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+    const reply =
+      data?.response ||
+      data?.reply ||
+      data?.text ||
+      "No response from server.";
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: reply }
+    ]);
+  } catch (error) {
+    console.error("Send error:", error);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text: "Error: Could not send message."
+      }
+    ]);
+  }
 }
-
-export default App;
