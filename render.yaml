@@ -1,7 +1,6 @@
 services:
   - type: web
-    name: OmniCore
-    runtime: python
-    workingDir: backend
-    buildCommand: pip install -r requirements.txt
-  - startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
+    name: omnicore-backend
+    env: python
+    rootDir: backend
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
