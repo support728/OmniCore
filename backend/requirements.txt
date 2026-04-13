@@ -5,3 +5,6 @@ python-multipart
 pydantic-settings
 openai
 requests
+passlib[bcrypt]
+httpx
+python-jose
