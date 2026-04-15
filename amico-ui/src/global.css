@@ -1,0 +1,93 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+/* App container */
+.app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Chat box */
+.chat-container {
+  width: 400px;
+  height: 600px;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Title */
+.title {
+  text-align: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+}
+
+/* Messages area */
+.messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+/* Individual message */
+.message {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+/* User vs AI styling */
+.message.user {
+  background: #d1e7ff;
+  align-self: flex-end;
+}
+
+.message.ai {
+  background: #f1f1f1;
+  align-self: flex-start;
+}
+
+/* Input area */
+.input-area {
+  display: flex;
+  border-top: 1px solid #eee;
+}
+
+/* Input box */
+.input-area input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+/* Button */
+.input-area button {
+  padding: 10px 15px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.input-area button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}

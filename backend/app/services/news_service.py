@@ -1,30 +1,40 @@
-import httpx
-from app.core.config import get_settings
+import os
+from openai import OpenAI
 
-class NewsService:
-	def __init__(self, client: httpx.AsyncClient):
-		self.client = client
-		self.settings = get_settings()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-	async def handle(self, request):
-		url = "https://newsapi.org/v2/top-headlines"
-		params = {
-			"apiKey": self.settings.news_api_key,
-			"country": getattr(request, "country", None) or "us",
-			"category": getattr(request, "category", None),
-			"q": getattr(request, "news_query", None),
-			"pageSize": 3,
-		}
-		# Remove None values
-		params = {k: v for k, v in params.items() if v is not None}
+NEWS_SYSTEM_PROMPT = """
+You are Amico AI news service.
 
-		response = await self.client.get(url, params=params)
-		response.raise_for_status()
-		data = response.json()
-		articles = data.get("articles", [])
-		if not articles:
-			answer = "No news found."
-		else:
-			headlines = [f"- {a['title']}" for a in articles[:3] if 'title' in a]
-			answer = "Top news:\n" + "\n".join(headlines)
-		return {"answer": answer}
+Your job:
+- Answer news questions using current web information.
+- Give a clear summary of the latest relevant news.
+- If the user asks for general news, provide major current headlines.
+- If the user asks about a topic, company, person, or place, focus on that.
+- Keep the response practical and easy to read.
+- Do not make up news.
+"""
+
+def get_news(query: str = "latest news") -> str:
+    if not os.getenv("OPENAI_API_KEY"):
+        return "OPENAI_API_KEY is missing on the backend."
+
+    cleaned_query = query.strip() if query else "latest news"
+    if not cleaned_query:
+        cleaned_query = "latest news"
+
+    try:
+        response = client.responses.create(
+            model="gpt-4.1-mini",
+            instructions=NEWS_SYSTEM_PROMPT,
+            tools=[{"type": "web_search"}],
+            input=cleaned_query,
+        )
+
+        text = getattr(response, "output_text", None)
+        if text and text.strip():
+            return text.strip()
+
+        return "I checked the news, but I could not produce a response."
+    except Exception as e:
+        return f"News service failed: {str(e)}"
