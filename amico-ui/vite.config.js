@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://127.0.0.1:8001",
+      "/api/amico": "http://127.0.0.1:3000",
+      "/api": "http://127.0.0.1:8000",
     },
   },
 });

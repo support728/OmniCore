@@ -1,105 +1,36 @@
-import { useState } from "react";
-import { sendMessage } from "./services/api";
+import * as React from "react";
+import InAppBrowser from "./components/InAppBrowser";
 
-type Message = {
-  role: string;
-  content: string;
-};
+  export default function App() {
+    const [message, setMessage] = useState("");
+    const [response, setResponse] = useState("");
 
-export default function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "Amico", content: "Amico is ready." },
-  ]);
-  const [input, setInput] = useState("");
+    const sendMessage = async () => {
+      const res = await fetch("https://omnicore-backend.onrender.com/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message })
+      });
 
-  const handleSend = async () => {
-    const userMessage = input.trim();
-    if (!userMessage) return;
+      const data = await res.json();
+      setResponse(data.response || JSON.stringify(data));
+    };
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "You", content: userMessage },
-    ]);
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>OmniCore AI</h1>
 
-    setInput("");
-
-    const reply = await sendMessage(userMessage);
-
-    setMessages((prev) => [
-      ...prev,
-      { role: "Amico", content: reply || "No response" },
-    ]);
-  };
-
-  return (
-    <div style={styles.app}>
-      <div style={styles.header}>Amico AI 🎤</div>
-
-      <div style={styles.chat}>
-        {messages.map((msg, index) => (
-          <div key={index} style={styles.message}>
-            <strong>{msg.role}:</strong> {msg.content}
-          </div>
-        ))}
-      </div>
-
-      <div style={styles.inputBar}>
         <input
-          style={styles.input}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSend();
-          }}
-          placeholder="Type your command..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type a message"
         />
-        <button style={styles.button} onClick={handleSend}>
-          Send
-        </button>
-      </div>
-    </div>
-  );
-}
 
-const styles = {
-  app: {
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column" as const,
-    fontFamily: "Arial, sans-serif",
-    background: "#fff",
-  },
-  header: {
-    padding: "16px",
-    fontSize: "24px",
-    fontWeight: "bold",
-    borderBottom: "1px solid #ddd",
-  },
-  chat: {
-    flex: 1,
-    overflowY: "auto" as const,
-    padding: "16px",
-  },
-  message: {
-    marginBottom: "14px",
-    fontSize: "16px",
-    lineHeight: 1.4,
-  },
-  inputBar: {
-    display: "flex",
-    gap: "10px",
-    padding: "12px 16px",
-    borderTop: "1px solid #ddd",
-    background: "#fff",
-  },
-  input: {
-    flex: 1,
-    padding: "10px",
-    fontSize: "16px",
-  },
-  button: {
-    padding: "10px 18px",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-};
+        <button onClick={sendMessage}>Send</button>
+
+        <p>{response}</p>
+      </div>
+    );
+  }

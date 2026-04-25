@@ -4,10 +4,10 @@ from alembic import context
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-from app.db.base import Base
+from backend.app.db.base import Base
 
 try:
-    from app.db.session import DATABASE_URL
+    from backend.app.db.session import DATABASE_URL
 except (ImportError, ModuleNotFoundError):
     DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./test.db')
 

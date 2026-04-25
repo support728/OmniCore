@@ -1,5 +1,5 @@
 import httpx
-from app.config import get_settings
+from backend.app.config import get_settings
 
 def build_async_client():
 	settings = get_settings()

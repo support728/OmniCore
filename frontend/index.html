@@ -1,12 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OmniCore AI</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>OmniCore Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🌤 OmniCore Assistant</h1>
+
+    <div id="chat-box"></div>
+
+    <div class="input-row">
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Ask something (e.g. weather in London)"
+      />
+      <button onclick="send()">Send</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+<script>
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("user-input");
+const sendBtn = document.querySelector("button[onclick^='send']");
+
+async function sendMessage() {
+  const message = input.value.trim();
+  if (!message) return;
+
+  // Show user message
+  chatBox.innerHTML += `<div><b>You:</b> ${message}</div>`;
+  input.value = "";
+
+  try {
+    const res = await fetch("http://127.0.0.1:8011/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+    // Prefer 'message', fallback to 'answer', else JSON string
+    let botMsg = data.message || data.answer || JSON.stringify(data);
+    // If botMsg is an object, pretty print
+    if (typeof botMsg === 'object') {
+      botMsg = JSON.stringify(botMsg, null, 2);
+    }
+    chatBox.innerHTML += `<div><b>Bot:</b> ${botMsg}</div>`;
+  } catch (e) {
+    chatBox.innerHTML += `<div><b>Bot:</b> <span style='color:red'>Error: ${e.message}</span></div>`;
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Enter key support
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
+
+// Send button support
+if (sendBtn) {
+  sendBtn.onclick = sendMessage;
+}
+</script>
+</body>
 </html>

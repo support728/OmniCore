@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Delete backend_backup_working folder",
+			"type": "shell",
+			"command": "Remove-Item -Recurse -Force \"c:\\Users\\smoni\\OneDrive\\New folder\\New folder\\OmniCore\\backend_backup_working\"",
+			"group": "build"
+		},
+		{
+			"label": "Delete backend_backup_working folder (quoted path)",
+			"type": "shell",
+			"command": "Remove-Item -Recurse -Force 'c:\\Users\\smoni\\OneDrive\\New folder\\New folder\\OmniCore\\backend_backup_working'",
+			"group": "build"
+		}
+	]
+}

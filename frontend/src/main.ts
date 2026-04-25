@@ -4,10 +4,67 @@ const API_URL = 'http://localhost:8000';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
+type SearchResult = {
+	title: string;
+	link: string;
+	snippet: string;
+};
+
+type AssistantResponse = {
+	type?: string;
+	summary?: string;
+	message?: string;
+	reply?: string;
+	data?: {
+		results?: SearchResult[];
+		city?: string;
+		temperature?: number;
+		temp?: number;
+		description?: string;
+	};
+};
+
+function escapeHtml(value: string) {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+function renderStructuredResponse(data: AssistantResponse) {
+	const results = Array.isArray(data.data?.results) ? data.data.results : [];
+	if (data.type === 'weather') {
+		const temp = data.data?.temperature ?? data.data?.temp;
+		const description = data.data?.description ?? '';
+		const city = data.data?.city ?? 'that location';
+		return `<div style="margin-top: 12px; border: 1px solid #d9e1ec; border-radius: 16px; background: #f8fbff; color: #172033; padding: 16px;">${escapeHtml(String(city))}${temp !== undefined ? ` · ${escapeHtml(String(temp))}°` : ''}${description ? ` · ${escapeHtml(String(description))}` : ''}</div>`;
+	}
+
+	if (data.type === 'web_search' || data.type === 'youtube_search' || data.type === 'news') {
+		const cards = results
+			.map(
+				(result) => `
+					<div style="border: 1px solid #d9e1ec; border-radius: 16px; background: #fff; padding: 16px; text-align: left;">
+						<div style="font-size: 16px; font-weight: 700; color: #172033; margin-bottom: 8px;">${escapeHtml(result.title || result.link || 'Result')}</div>
+						<div style="font-size: 14px; line-height: 1.6; color: #425874;">${escapeHtml(result.snippet || '')}</div>
+						<div style="margin-top: 10px; font-size: 12px; color: #7a889c; word-break: break-all;">${escapeHtml(result.link || '')}</div>
+					</div>
+				`
+			)
+			.join('');
+
+		return cards ? `<div style="display: grid; gap: 12px; margin-top: 12px;">${cards}</div>` : '';
+	}
+
+	return '';
+}
+
 function renderUI() {
 	if (!app) return;
 	app.innerHTML = `
-		<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #fff;">
+		<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background: #fff; padding: 24px; box-sizing: border-box;">
 			<h1 style="font-size: 3rem; font-weight: 700; letter-spacing: 2px; color: #222; margin: 0;">OmniCore AI</h1>
 			<p style="font-size: 1.25rem; color: #666; margin-top: 1rem;">Welcome to the future of intelligence</p>
 			<form id="chat-form" style="margin-top: 2rem; display: flex; gap: 0.5rem;">
@@ -28,8 +85,16 @@ async function sendMessage(message: string) {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ message }),
 		});
-		const data = await res.json();
-		if (responseDiv) responseDiv.textContent = data.response || 'No response.';
+		const data = (await res.json()) as AssistantResponse;
+		const responseMessage =
+			(typeof data?.summary === 'string' && data.summary.trim()) ||
+			(typeof data?.message === 'string' && data.message.trim()) ||
+			(typeof data?.reply === 'string' && data.reply.trim()) ||
+			'';
+
+		if (responseDiv) {
+			responseDiv.innerHTML = `<div>${escapeHtml(responseMessage)}</div>${renderStructuredResponse(data)}`;
+		}
 	} catch (e) {
 		if (responseDiv) responseDiv.textContent = 'Error connecting to OmniCore AI.';
 	}

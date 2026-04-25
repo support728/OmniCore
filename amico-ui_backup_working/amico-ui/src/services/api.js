@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8011";
 
 export async function sendMessage(message) {
   const response = await fetch(`${API_URL}/api/chat`, {

@@ -1,74 +1,689 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f6fa;
+.amico-shell {
+  min-height: 100vh;
+  padding: 24px 16px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.65), transparent 32%),
+    linear-gradient(180deg, #edf3fb 0%, #ffffff 100%);
+  color: #172033;
 }
 
-.app {
+.amico-layout {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 312px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.amico-layout--collapsed {
+  grid-template-columns: 92px minmax(0, 1fr);
+}
+
+.amico-sidebar {
+  position: sticky;
+  top: 24px;
+  min-height: calc(100vh - 48px);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid rgba(210, 223, 239, 0.92);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 20px 55px rgba(23, 32, 51, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.amico-sidebar__top {
+  display: grid;
+  gap: 14px;
+}
+
+.amico-sidebar__brand-row {
+  display: flex;
   align-items: center;
-  height: 100vh;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.chat-container {
-  width: 400px;
-  height: 600px;
-  background: white;
-  border-radius: 12px;
+.amico-sidebar__brand {
   display: flex;
-  flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
-.title {
-  text-align: center;
-  padding: 15px;
-  border-bottom: 1px solid #eee;
+.amico-sidebar__brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #172033 0%, #324867 100%);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
-.chat-box {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.amico-sidebar__brand-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #172033;
+  white-space: nowrap;
 }
 
-.message {
-  padding: 10px 14px;
-  border-radius: 10px;
-  max-width: 75%;
+.amico-sidebar__collapse,
+.amico-inline-button,
+.amico-sidebar__new-chat,
+.amico-sidebar__item,
+.amico-sidebar__chat-item,
+.amico-sidebar__mode,
+.amico-sidebar__domain,
+.amico-panel-button,
+.amico-software-link,
+.amico-software-prompt,
+.amico-workflow-card {
+  appearance: none;
+  border: 1px solid #d6e0ee;
+  background: #ffffff;
+  color: #172033;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, background 120ms ease;
 }
 
-.user {
-  align-self: flex-end;
-  background: #6c5ce7;
-  color: white;
+.amico-sidebar__collapse:hover,
+.amico-inline-button:hover,
+.amico-sidebar__new-chat:hover,
+.amico-sidebar__item:hover,
+.amico-sidebar__chat-item:hover,
+.amico-sidebar__mode:hover,
+.amico-sidebar__domain:hover,
+.amico-panel-button:hover,
+.amico-software-link:hover,
+.amico-software-prompt:hover,
+.amico-workflow-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.08);
+  border-color: #b9c9df;
 }
 
-.ai {
-  align-self: flex-start;
-  background: #ecf0f1;
+.amico-sidebar__collapse {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-.input-area {
-  display: flex;
-  border-top: 1px solid #eee;
+.amico-sidebar__new-chat {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 16px;
+  padding: 0 16px;
+  background: linear-gradient(135deg, #172033 0%, #304767 100%);
+  border-color: #172033;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.input-area input {
-  flex: 1;
-  padding: 12px;
-  border: none;
+.amico-sidebar__search {
+  display: grid;
+  gap: 8px;
+}
+
+.amico-sidebar__section-kicker,
+.amico-sidebar__section-header {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #72849c;
+}
+
+.amico-sidebar__search input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #d6e0ee;
+  background: #f7faff;
+  color: #172033;
   outline: none;
 }
 
-.input-area button {
-  background: #6c5ce7;
-  color: white;
-  border: none;
-  padding: 0 20px;
+.amico-sidebar__search input:focus {
+  border-color: #9eb3cf;
+  box-shadow: 0 0 0 3px rgba(75, 105, 145, 0.12);
+}
+
+.amico-sidebar__content {
+  display: grid;
+  gap: 18px;
+}
+
+.amico-sidebar__section {
+  display: grid;
+  gap: 10px;
+}
+
+.amico-sidebar__stack {
+  display: grid;
+  gap: 8px;
+}
+
+.amico-sidebar__item,
+.amico-sidebar__chat-item {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.amico-sidebar__item {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.amico-sidebar__item.is-active,
+.amico-sidebar__mode.is-active {
+  background: #172033;
+  border-color: #172033;
+  color: #ffffff;
+}
+
+.amico-sidebar__chat-item {
+  display: grid;
+  gap: 4px;
+  background: #fbfcff;
+}
+
+.amico-sidebar__chat-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #172033;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.amico-sidebar__chat-meta {
+  font-size: 11px;
+  color: #73839a;
+}
+
+.amico-sidebar__mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.amico-sidebar__domain-list {
+  display: grid;
+  gap: 10px;
+}
+
+.amico-sidebar__domain {
+  width: 100%;
+  padding: 12px;
+  border-radius: 18px;
+  text-align: left;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  background: #fbfcff;
+}
+
+.amico-sidebar__domain.is-active {
+  border-color: #172033;
+  box-shadow: 0 14px 28px rgba(23, 32, 51, 0.1);
+}
+
+.amico-sidebar__domain-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.amico-sidebar__domain-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.amico-sidebar__domain-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.amico-sidebar__domain-description {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #61748f;
+}
+
+.amico-sidebar__mode {
+  min-height: 46px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.amico-sidebar__empty {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f8fbff;
+  color: #73839a;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.amico-sidebar__compact-domains {
+  display: grid;
+  gap: 8px;
+}
+
+.amico-sidebar__compact-domain {
+  appearance: none;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid #d6e0ee;
+  background: #fbfcff;
+  color: #172033;
   cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.amico-sidebar__compact-domain:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.08);
+  border-color: #b9c9df;
+}
+
+.amico-sidebar__compact-domain.is-active {
+  background: #172033;
+  border-color: #172033;
+  color: #ffffff;
+}
+
+.amico-main-panel {
+  min-width: 0;
+}
+
+.amico-main-card {
+  background: #ffffff;
+  border: 1px solid #d9e1ec;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(23, 32, 51, 0.08);
+  overflow: hidden;
+}
+
+.amico-main-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.amico-inline-button {
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.amico-header-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.amico-header-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #f3f7fc;
+  border: 1px solid #dbe5f1;
+  color: #53667f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.amico-software-panel {
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid #d9e1ec;
+  background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.04);
+  display: grid;
+  gap: 16px;
+}
+
+.amico-software-panel__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.amico-software-panel__kicker,
+.amico-software-panel__section-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #72849c;
+}
+
+.amico-software-panel__title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.amico-software-panel__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  height: 46px;
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.amico-software-panel__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.amico-software-panel__description {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #53667f;
+  max-width: 680px;
+}
+
+.amico-software-panel__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #172033;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.amico-software-panel__chips,
+.amico-software-panel__action-row,
+.amico-software-panel__prompt-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.amico-software-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef4fb;
+  border: 1px solid #d9e6f3;
+  color: #546983;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.amico-software-panel__chip--muted {
+  background: #f8fbff;
+  color: #6e829d;
+}
+
+.amico-panel-button,
+.amico-software-prompt {
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.amico-software-grid,
+.amico-workflow-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.amico-software-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.amico-workflow-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.amico-software-card,
+.amico-workflow-card {
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.amico-software-card {
+  padding: 16px;
+  border: 1px solid #dbe5f1;
+  display: grid;
+  gap: 12px;
+}
+
+.amico-software-link-list {
+  display: grid;
+  gap: 10px;
+}
+
+.amico-software-link {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+}
+
+.amico-software-link__label,
+.amico-workflow-card__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.amico-software-link__description,
+.amico-workflow-card__description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #5a6d87;
+}
+
+.amico-workflow-card {
+  padding: 16px;
+  text-align: left;
+  display: grid;
+  gap: 8px;
+}
+
+.amico-business-panel__hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border: 1px solid #dbe5f1;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(31, 75, 153, 0.08) 0%, rgba(255, 255, 255, 0.98) 100%);
+}
+
+.amico-business-panel__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.amico-business-panel__subtitle {
+  margin-top: 6px;
+  max-width: 720px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #53667f;
+}
+
+.amico-business-panel__status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #172033;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.amico-business-panel__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.amico-business-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.amico-image-readiness {
+  display: grid;
+  gap: 10px;
+}
+
+.amico-image-readiness__card {
+  border: 1px solid #dbe5f1;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.amico-image-readiness__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.amico-image-readiness__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.amico-image-readiness__description {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #53667f;
+}
+
+.amico-image-readiness__status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.amico-image-readiness__status.is-ready {
+  background: #eaf7ef;
+  color: #177245;
+}
+
+.amico-image-readiness__status.is-pending {
+  background: #f8f1e8;
+  color: #9a5b12;
+}
+
+.amico-image-readiness__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 1080px) {
+  .amico-layout,
+  .amico-layout--collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .amico-sidebar {
+    position: static;
+    min-height: auto;
+  }
+
+  .amico-software-grid,
+  .amico-business-panel__grid,
+  .amico-workflow-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .amico-shell {
+    padding: 14px;
+  }
+
+  .amico-sidebar {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .amico-sidebar__mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
